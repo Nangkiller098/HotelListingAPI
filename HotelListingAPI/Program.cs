@@ -2,8 +2,10 @@ using HotelListingAPI.Configurations;
 using HotelListingAPI.Contracts;
 using HotelListingAPI.Data;
 using HotelListingAPI.Repositoy;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 //connection sql
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddDbContext<HotelListingDbContext>(c =>
 {
     c.UseSqlServer(connectionString);
@@ -43,6 +46,21 @@ builder.Services.AddAutoMapper(typeof(MapperConfig));
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<ICountiesRepository, CountriesRepository>();
 builder.Services.AddScoped<IHotelRepository, HotelRepository>();
+builder.Services.AddScoped<IAuthManager, AuthManager>();
+builder.Services.AddAuthentication(option =>
+{
+    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(option =>
+{
+    option.TokenValidationParameters = new TokenValidationParameters()
+    {
+        ValidateIssuerSigningKey = true,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+    };
+});
 
 
 var app = builder.Build();
