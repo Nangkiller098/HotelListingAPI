@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using HotelListingAPI.Contracts;
 using HotelListingAPI.Data;
+using HotelListingAPI.Exceptions;
 using HotelListingAPI.Models.Country;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +16,9 @@ namespace HotelListingAPI.Controllers
     {
         private readonly IMapper _mapper;
         private readonly ICountiesRepository _countiesRepository;
-        private readonly ILogger _logger;
+        private readonly ILogger<CountriesController> _logger;
 
-        public CountriesController(IMapper mapper, ICountiesRepository countiesRepository, ILogger logger)
+        public CountriesController(IMapper mapper, ICountiesRepository countiesRepository, ILogger<CountriesController> logger)
         {
             this._mapper = mapper;
             this._countiesRepository = countiesRepository;
@@ -44,8 +45,9 @@ namespace HotelListingAPI.Controllers
             var country = await _countiesRepository.GetDetails(id);
             if (country == null)
             {
-                _logger.LogWarning($"Record found in{nameof(GetCountry)} with Id:{id}");
-                return NotFound();
+                throw new NotFoundException(nameof(GetCountry), id);
+                //_logger.LogWarning($"Record found in{nameof(GetCountry)} with Id:{id}");
+                //return NotFound();
             }
             var countryDto = _mapper.Map<CountryDto>(country);
 
@@ -60,14 +62,14 @@ namespace HotelListingAPI.Controllers
         {
             if (id != updateCountryDto.Id)
             {
-                return BadRequest();
+                return BadRequest("Invalid Record Id");
             }
 
             //_context.Entry(updateCountryDto).State = EntityState.Modified;
             var country = await _countiesRepository.GetAsync(id);
             if (country == null)
             {
-                return NotFound();
+                throw new NotFoundException(nameof(GetCountry), id);
             }
             _mapper.Map(updateCountryDto, country);
 

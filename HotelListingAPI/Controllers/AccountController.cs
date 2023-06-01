@@ -42,6 +42,7 @@ namespace HotelListingAPI.Controllers
             {
 
                 _logger.LogError(ex, $"Something Went Wrong in the {nameof(Register)}- User Registration attemtp for {apiUserDto.Email}");
+                //throw;
                 return Problem($"Something Went Wrong in the {nameof(Register)}", statusCode: 500);
             }
         }
@@ -68,12 +69,24 @@ namespace HotelListingAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult> Login([FromBody] LoginDto loginDto)
         {
-            var authResponse = await _authManager.Login(loginDto);
-            if (authResponse == null)
+            _logger.LogInformation($"Login Attempt for{loginDto.Email}");
+            try
             {
-                return Unauthorized();
+                var authResponse = await _authManager.Login(loginDto);
+                if (authResponse == null)
+                {
+                    return Unauthorized();
+                }
+                return Ok(authResponse);
             }
-            return Ok(authResponse);
+            catch (Exception ex)
+            {
+
+                _logger.LogError(ex, $"Something Went Wrong in the {nameof(Login)}");
+                //throw;
+                return Problem($"Something Went Wrong in the {nameof(Login)}", statusCode: 500);
+            }
+
         }
     }
 
