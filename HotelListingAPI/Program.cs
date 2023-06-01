@@ -4,6 +4,7 @@ using HotelListingAPI.Data;
 using HotelListingAPI.Repositoy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -69,6 +70,21 @@ builder.Services.AddAuthentication(option =>
     };
 });
 
+builder.Services.AddApiVersioning(option =>
+{
+    option.AssumeDefaultVersionWhenUnspecified = true;
+    option.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+    option.ApiVersionReader = ApiVersionReader.Combine(
+        new QueryStringApiVersionReader("api-version"),
+        new HeaderApiVersionReader("X-Version"),
+        new MediaTypeApiVersionReader("ver")
+        );
+});
+builder.Services.AddVersionedApiExplorer(option =>
+    {
+        option.GroupNameFormat = "'v'VVV";
+        option.SubstituteApiVersionInUrl = true;
+    });
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
