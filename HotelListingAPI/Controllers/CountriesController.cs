@@ -9,16 +9,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HotelListingAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/countries")]
     [ApiController]
+    [ApiVersion("2.0")]
 
-    public class CountriesController : ControllerBase
+    public class CountriesV2Controller : ControllerBase
     {
         private readonly IMapper _mapper;
         private readonly ICountiesRepository _countiesRepository;
-        private readonly ILogger<CountriesController> _logger;
+        private readonly ILogger<CountriesV2Controller> _logger;
 
-        public CountriesController(IMapper mapper, ICountiesRepository countiesRepository, ILogger<CountriesController> logger)
+        public CountriesV2Controller(IMapper mapper, ICountiesRepository countiesRepository, ILogger<CountriesV2Controller> logger)
         {
             this._mapper = mapper;
             this._countiesRepository = countiesRepository;
